@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goal-ito</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="fade-in">
+    <div class="container">
+        <header>
+            <h1>Goal-ito</h1>
+        </header>
+
+        <section class="priority-goal" id="priorityGoalSection">
+
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="goals-list">
+            <h2>Goals</h2>
+            <div id="goalItemsContainer" class="goal-items-container">
+                
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stats-left">
+                <h2>Statistics</h2>
+                <p id="completedStats">Completed: 0 tasks</p>
+            </div>
+            <div class="stats-right">
+                <img src="image4.png" alt="Stats Illustration" class="stats-image">
+            </div>
+        </section>
+        
+    </div>
+
+    <footer>
+        <button id="addGoalBtn" class="add-button">+</button>
+    </footer>
+
+    <script>
+        const goalItemsContainer = document.getElementById('goalItemsContainer');
+        const priorityGoalSection = document.getElementById('priorityGoalSection');
+
+
+        function updateStats() {
+            let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || 0;
+            document.getElementById('completedStats').textContent = `Completed: ${completedTasks} tasks`;
+        }
+
+        function displayGoals() {
+            let goals = JSON.parse(localStorage.getItem('goals')) || [];
+
+
+            goals.sort((a, b) => b.priority - a.priority);
+
+            goalItemsContainer.innerHTML = '';
+            priorityGoalSection.innerHTML = '';
+
+            if (goals.length > 0) {
+                const highestPriorityGoal = goals[0]; 
+                priorityGoalSection.innerHTML = `
+                    <div class="goal-image">
+                        <img src="image2.png" alt="Clock Illustration" class="clock-img">
+                    </div>
+                    <div class="goal-info">
+                        <h2>Priority Goal!</h2>
+                        <h1>${highestPriorityGoal.name}</h1>
+                        <p>Description: ${highestPriorityGoal.desc}</p>
+                        <p class="deadline"><strong>Deadline:</strong> ${highestPriorityGoal.due}</p>
+                    </div>
+                `;
+            }
+
+            goals.forEach(goal => {
+                const goalItem = document.createElement('div');
+                goalItem.classList.add('goal-item');
+                goalItem.innerHTML = `
+                    <h3>${goal.name}</h3>
+                    <p>${goal.desc}</p>
+                    <p><i class="time">${goal.due}</i></p>
+                `;
+                goalItemsContainer.appendChild(goalItem);
+            });
+        }
+
+        window.onload = () => {
+            displayGoals();
+            updateStats();
+        };
+
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        addGoalBtn.addEventListener('click', function () {
+            document.body.classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = 'addGoal.html';
+            }, 700); 
+        });
+
+        window.addEventListener('load', function () {
+            document.body.classList.add('fade-in');
+        });
+    </script>
+</body>
+</html>
