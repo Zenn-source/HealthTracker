@@ -12,6 +12,15 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
+.container {
+    max-width: 1200px;
+    margin: 40px auto; 
+    padding: 20px; 
+    background-color: var(--white-color); 
+    box-shadow: 0 4px 12px var(--shadow-color); 
+    border-radius: 10px;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     background-color: var(--background-light);
