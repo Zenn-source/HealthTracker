@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Goal - Goal-ito</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Goal-ito</h1>
+        </header>
+
+        <div id="addGoalForm">
+            <h1>Add a new goal!</h1>
+            <label for="goalName">What is your goal?</label>
+            <input type="text" id="goalName" placeholder="Enter your goal">
+
+            <label for="goalDesc">Describe your goal</label>
+            <textarea id="goalDesc" placeholder="Goal description"></textarea>
+
+            <label>How important is your goal?</label>
+            <div class="priority-options">
+                <button class="priority-btn" data-priority="5">Most Priority</button>
+                <button class="priority-btn" data-priority="4">More Priority</button>
+                <button class="priority-btn" data-priority="3">Priority</button>
+                <button class="priority-btn" data-priority="2">Less Priority</button>
+                <button class="priority-btn" data-priority="1">Least Priority</button>
+            </div>
+
+            <label for="goalDue">When is your goal due?</label>
+            <input type="date" id="goalDue">
+
+            <button id="saveGoalBtn">Save Goal</button>
+        </div>
+
+        <div class="stats-left">
+            <p id="statsElement">Completed: 0 tasks</p>
+        </div>
+
+        <div id="goalsList">
+            <h2>Your Goals</h2>
+            <ul id="goalItemsContainer"></ul>
+        </div>
+
+        <button id="backBtn">Back to Dashboard</button>
+    </div>
+
+    <script>
+        const saveGoalBtn = document.getElementById('saveGoalBtn');
+        const priorityBtns = document.querySelectorAll('.priority-btn');
+        const goalItemsContainer = document.getElementById('goalItemsContainer');
+        const backBtn = document.getElementById('backBtn');
+
+        let selectedPriority = 3; 
+
+        priorityBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                priorityBtns.forEach(button => button.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedPriority = e.target.dataset.priority;
+            });
+        });
+
+        function displayGoals() {
+            let goals = JSON.parse(localStorage.getItem('goals')) || [];
+            
+            goals.sort((a, b) => b.priority - a.priority);
+
+            goalItemsContainer.innerHTML = '';
+
+            goals.forEach((goal, index) => {
+                const goalItem = document.createElement('li');
+                goalItem.classList.add('goal-item');
+                goalItem.innerHTML = `
+                    <h3>${goal.name} (Priority: ${goal.priority})</h3>
+                    <p>${goal.desc}</p>
+                    <p>Due: ${goal.due}</p>
+                    <button class="deleteGoalBtn" data-index="${index}">Mark as Done</button>
+                `;
+                goalItemsContainer.appendChild(goalItem);
+            });
+
+            const deleteButtons = document.querySelectorAll('.deleteGoalBtn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const goalIndex = e.target.dataset.index;
+                    deleteGoal(goalIndex, e.target);
+                });
+            });
+        }
+
+        function deleteGoal(index, button) {
+            let goals = JSON.parse(localStorage.getItem('goals')) || [];
+            
+            goals.splice(index, 1);
+            
+            localStorage.setItem('goals', JSON.stringify(goals));
+
+            let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || 0;
+            completedTasks++;
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+
+            updateStats();
+
+            button.disabled = true;
+            
+            button.closest('li').remove();
+        }
+
+        function updateStats() {
+            const completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || 0;
+            const statsElement = document.getElementById('statsElement');
+            statsElement.innerText = `Completed: ${completedTasks} task${completedTasks !== 1 ? 's' : ''}`;
+        }
+
+        saveGoalBtn.addEventListener('click', () => {
+            const goalName = document.getElementById('goalName').value;
+            const goalDesc = document.getElementById('goalDesc').value;
+            const goalDue = document.getElementById('goalDue').value;
+
+            if (goalName && goalDesc && goalDue) {
+                const newGoal = {
+                    name: goalName,
+                    desc: goalDesc,
+                    due: goalDue,
+                    priority: selectedPriority
+                };
+
+                let goals = JSON.parse(localStorage.getItem('goals')) || [];
+                goals.push(newGoal);
+                localStorage.setItem('goals', JSON.stringify(goals));
+
+                displayGoals();
+
+                window.location.href = 'dashboard.html';
+            } else {
+                alert("Please fill out all fields before saving.");
+            }
+        });
+
+        window.onload = () => {
+            displayGoals();
+            updateStats(); 
+        };
+
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>
